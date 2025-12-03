@@ -9,6 +9,8 @@ pub mod optional_integer_str_array;
 pub mod optional_range;
 pub mod optional_ratio_i64;
 pub mod optional_ratio_u64;
+pub mod optional_timestamp_millis_str;
+pub mod optional_timestamp_str;
 pub mod optional_usize;
 pub mod range;
 pub mod ratio_i64;
@@ -205,6 +207,202 @@ mod tests {
             value_b: None,
         };
         let expected = r#"{"value_a":123,"value_b":-1}"#;
+
+        assert_eq!(serde_json::json!(value).to_string(), expected);
+    }
+
+    #[derive(Debug, Eq, PartialEq, serde::Deserialize, serde::Serialize)]
+    struct TimestampStrData {
+        #[serde(with = "super::timestamp_str")]
+        timestamp: chrono::DateTime<chrono::Utc>,
+    }
+
+    #[derive(Debug, Eq, PartialEq, serde::Deserialize, serde::Serialize)]
+    struct OptionalTimestampStrData {
+        #[serde(
+            with = "super::optional_timestamp_str",
+            default,
+            skip_serializing_if = "Option::is_none"
+        )]
+        timestamp: Option<chrono::DateTime<chrono::Utc>>,
+    }
+
+    #[test]
+    fn deserialize_timestamp_str() {
+        let json = r#"{"timestamp":"1609459200"}"#;
+        let expected = TimestampStrData {
+            timestamp: chrono::TimeZone::timestamp_opt(&chrono::Utc, 1609459200, 0)
+                .single()
+                .unwrap(),
+        };
+
+        assert_eq!(
+            serde_json::from_str::<TimestampStrData>(&json).unwrap(),
+            expected
+        );
+    }
+
+    #[test]
+    fn serialize_timestamp_str() {
+        let value = TimestampStrData {
+            timestamp: chrono::TimeZone::timestamp_opt(&chrono::Utc, 1609459200, 0)
+                .single()
+                .unwrap(),
+        };
+        let expected = r#"{"timestamp":"1609459200"}"#;
+
+        assert_eq!(serde_json::json!(value).to_string(), expected);
+    }
+
+    #[test]
+    fn deserialize_some_timestamp_str_opt() {
+        let json = r#"{"timestamp":"1609459200"}"#;
+        let expected = OptionalTimestampStrData {
+            timestamp: Some(
+                chrono::TimeZone::timestamp_opt(&chrono::Utc, 1609459200, 0)
+                    .single()
+                    .unwrap(),
+            ),
+        };
+
+        assert_eq!(
+            serde_json::from_str::<OptionalTimestampStrData>(&json).unwrap(),
+            expected
+        );
+    }
+
+    #[test]
+    fn serialize_some_timestamp_str_opt() {
+        let value = OptionalTimestampStrData {
+            timestamp: Some(
+                chrono::TimeZone::timestamp_opt(&chrono::Utc, 1609459200, 0)
+                    .single()
+                    .unwrap(),
+            ),
+        };
+        let expected = r#"{"timestamp":"1609459200"}"#;
+
+        assert_eq!(serde_json::json!(value).to_string(), expected);
+    }
+
+    #[test]
+    fn deserialize_missing_timestamp_str_opt() {
+        let json = "{}";
+        let expected = OptionalTimestampStrData { timestamp: None };
+
+        assert_eq!(
+            serde_json::from_str::<OptionalTimestampStrData>(&json).unwrap(),
+            expected
+        );
+    }
+
+    #[test]
+    fn deserialize_null_timestamp_str_opt() {
+        let json = r#"{"timestamp":null}"#;
+        let expected = OptionalTimestampStrData { timestamp: None };
+
+        assert_eq!(
+            serde_json::from_str::<OptionalTimestampStrData>(&json).unwrap(),
+            expected
+        );
+    }
+
+    #[test]
+    fn serialize_none_timestamp_str_opt() {
+        let value = OptionalTimestampStrData { timestamp: None };
+        let expected = "{}";
+
+        assert_eq!(serde_json::json!(value).to_string(), expected);
+    }
+
+    #[derive(Debug, Eq, PartialEq, serde::Deserialize, serde::Serialize)]
+    struct TimestampMillisStrData {
+        #[serde(with = "super::timestamp_millis_str")]
+        timestamp: chrono::DateTime<chrono::Utc>,
+    }
+
+    #[derive(Debug, Eq, PartialEq, serde::Deserialize, serde::Serialize)]
+    struct OptionalTimestampMillisStrData {
+        #[serde(
+            with = "super::optional_timestamp_millis_str",
+            default,
+            skip_serializing_if = "Option::is_none"
+        )]
+        timestamp: Option<chrono::DateTime<chrono::Utc>>,
+    }
+
+    #[test]
+    fn deserialize_timestamp_millis_str() {
+        let json = r#"{"timestamp":"1609459200000"}"#;
+        let expected = TimestampMillisStrData {
+            timestamp: chrono::DateTime::from_timestamp_millis(1609459200000).unwrap(),
+        };
+
+        assert_eq!(
+            serde_json::from_str::<TimestampMillisStrData>(&json).unwrap(),
+            expected
+        );
+    }
+
+    #[test]
+    fn serialize_timestamp_millis_str() {
+        let value = TimestampMillisStrData {
+            timestamp: chrono::DateTime::from_timestamp_millis(1609459200000).unwrap(),
+        };
+        let expected = r#"{"timestamp":"1609459200000"}"#;
+
+        assert_eq!(serde_json::json!(value).to_string(), expected);
+    }
+
+    #[test]
+    fn deserialize_some_timestamp_millis_str_opt() {
+        let json = r#"{"timestamp":"1609459200000"}"#;
+        let expected = OptionalTimestampMillisStrData {
+            timestamp: Some(chrono::DateTime::from_timestamp_millis(1609459200000).unwrap()),
+        };
+
+        assert_eq!(
+            serde_json::from_str::<OptionalTimestampMillisStrData>(&json).unwrap(),
+            expected
+        );
+    }
+
+    #[test]
+    fn serialize_some_timestamp_millis_str_opt() {
+        let value = OptionalTimestampMillisStrData {
+            timestamp: Some(chrono::DateTime::from_timestamp_millis(1609459200000).unwrap()),
+        };
+        let expected = r#"{"timestamp":"1609459200000"}"#;
+
+        assert_eq!(serde_json::json!(value).to_string(), expected);
+    }
+
+    #[test]
+    fn deserialize_missing_timestamp_millis_str_opt() {
+        let json = "{}";
+        let expected = OptionalTimestampMillisStrData { timestamp: None };
+
+        assert_eq!(
+            serde_json::from_str::<OptionalTimestampMillisStrData>(&json).unwrap(),
+            expected
+        );
+    }
+
+    #[test]
+    fn deserialize_null_timestamp_millis_str_opt() {
+        let json = r#"{"timestamp":null}"#;
+        let expected = OptionalTimestampMillisStrData { timestamp: None };
+
+        assert_eq!(
+            serde_json::from_str::<OptionalTimestampMillisStrData>(&json).unwrap(),
+            expected
+        );
+    }
+
+    #[test]
+    fn serialize_none_timestamp_millis_str_opt() {
+        let value = OptionalTimestampMillisStrData { timestamp: None };
+        let expected = "{}";
 
         assert_eq!(serde_json::json!(value).to_string(), expected);
     }
