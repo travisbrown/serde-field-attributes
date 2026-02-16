@@ -2,8 +2,10 @@
 #![allow(clippy::missing_errors_doc)]
 #![forbid(unsafe_code)]
 pub mod integer_or_integer_str;
+pub mod integer_or_integer_str_array;
 pub mod integer_str;
 pub mod integer_str_array;
+pub mod optional_integer_or_integer_str;
 pub mod optional_integer_str;
 pub mod optional_integer_str_array;
 pub mod optional_range;
@@ -405,5 +407,191 @@ mod tests {
         let expected = "{}";
 
         assert_eq!(serde_json::json!(value).to_string(), expected);
+    }
+
+    #[derive(Debug, Eq, PartialEq, serde::Deserialize, serde::Serialize)]
+    struct IntegerOrIntegerStrData {
+        #[serde(with = "super::integer_or_integer_str")]
+        value: u64,
+    }
+
+    #[test]
+    fn deserialize_integer_or_integer_str_from_string() {
+        let json = r#"{"value":"123"}"#;
+        let expected = IntegerOrIntegerStrData { value: 123 };
+
+        assert_eq!(
+            serde_json::from_str::<IntegerOrIntegerStrData>(&json).unwrap(),
+            expected
+        );
+    }
+
+    #[test]
+    fn deserialize_integer_or_integer_str_from_integer() {
+        let json = r#"{"value":123}"#;
+        let expected = IntegerOrIntegerStrData { value: 123 };
+
+        assert_eq!(
+            serde_json::from_str::<IntegerOrIntegerStrData>(&json).unwrap(),
+            expected
+        );
+    }
+
+    #[test]
+    fn serialize_integer_or_integer_str() {
+        let value = IntegerOrIntegerStrData { value: 123 };
+        let expected = r#"{"value":"123"}"#;
+
+        assert_eq!(serde_json::json!(value).to_string(), expected);
+    }
+
+    #[test]
+    fn deserialize_invalid_integer_or_integer_str() {
+        let json = r#"{"value":"abc"}"#;
+
+        assert!(serde_json::from_str::<IntegerOrIntegerStrData>(&json).is_err());
+    }
+
+    #[derive(Debug, Eq, PartialEq, serde::Deserialize, serde::Serialize)]
+    struct IntegerOrIntegerStrOptData {
+        #[serde(
+            with = "super::optional_integer_or_integer_str",
+            default,
+            skip_serializing_if = "Option::is_none"
+        )]
+        value: Option<u64>,
+    }
+
+    #[test]
+    fn deserialize_some_integer_or_integer_str_opt_from_string() {
+        let json = r#"{"value":"123"}"#;
+        let expected = IntegerOrIntegerStrOptData { value: Some(123) };
+
+        assert_eq!(
+            serde_json::from_str::<IntegerOrIntegerStrOptData>(&json).unwrap(),
+            expected
+        );
+    }
+
+    #[test]
+    fn deserialize_some_integer_or_integer_str_opt_from_integer() {
+        let json = r#"{"value":123}"#;
+        let expected = IntegerOrIntegerStrOptData { value: Some(123) };
+
+        assert_eq!(
+            serde_json::from_str::<IntegerOrIntegerStrOptData>(&json).unwrap(),
+            expected
+        );
+    }
+
+    #[test]
+    fn serialize_some_integer_or_integer_str_opt() {
+        let value = IntegerOrIntegerStrOptData { value: Some(123) };
+        let expected = r#"{"value":"123"}"#;
+
+        assert_eq!(serde_json::json!(value).to_string(), expected);
+    }
+
+    #[test]
+    fn deserialize_missing_integer_or_integer_str_opt() {
+        let json = "{}";
+        let expected = IntegerOrIntegerStrOptData { value: None };
+
+        assert_eq!(
+            serde_json::from_str::<IntegerOrIntegerStrOptData>(&json).unwrap(),
+            expected
+        );
+    }
+
+    #[test]
+    fn deserialize_null_integer_or_integer_str_opt() {
+        let json = r#"{"value":null}"#;
+        let expected = IntegerOrIntegerStrOptData { value: None };
+
+        assert_eq!(
+            serde_json::from_str::<IntegerOrIntegerStrOptData>(&json).unwrap(),
+            expected
+        );
+    }
+
+    #[test]
+    fn serialize_none_integer_or_integer_str_opt() {
+        let value = IntegerOrIntegerStrOptData { value: None };
+        let expected = "{}";
+
+        assert_eq!(serde_json::json!(value).to_string(), expected);
+    }
+
+    #[derive(Debug, Eq, PartialEq, serde::Deserialize, serde::Serialize)]
+    struct IntegerOrIntegerStrArrayData {
+        #[serde(with = "super::integer_or_integer_str_array")]
+        values: Vec<u64>,
+    }
+
+    #[test]
+    fn deserialize_integer_or_integer_str_array_from_strings() {
+        let json = r#"{"values":["123","456"]}"#;
+        let expected = IntegerOrIntegerStrArrayData {
+            values: vec![123, 456],
+        };
+
+        assert_eq!(
+            serde_json::from_str::<IntegerOrIntegerStrArrayData>(&json).unwrap(),
+            expected
+        );
+    }
+
+    #[test]
+    fn deserialize_integer_or_integer_str_array_from_integers() {
+        let json = r#"{"values":[123,456]}"#;
+        let expected = IntegerOrIntegerStrArrayData {
+            values: vec![123, 456],
+        };
+
+        assert_eq!(
+            serde_json::from_str::<IntegerOrIntegerStrArrayData>(&json).unwrap(),
+            expected
+        );
+    }
+
+    #[test]
+    fn deserialize_integer_or_integer_str_array_mixed() {
+        let json = r#"{"values":["123",456,"789"]}"#;
+        let expected = IntegerOrIntegerStrArrayData {
+            values: vec![123, 456, 789],
+        };
+
+        assert_eq!(
+            serde_json::from_str::<IntegerOrIntegerStrArrayData>(&json).unwrap(),
+            expected
+        );
+    }
+
+    #[test]
+    fn serialize_integer_or_integer_str_array() {
+        let value = IntegerOrIntegerStrArrayData {
+            values: vec![123, 456],
+        };
+        let expected = r#"{"values":["123","456"]}"#;
+
+        assert_eq!(serde_json::json!(value).to_string(), expected);
+    }
+
+    #[test]
+    fn deserialize_invalid_integer_or_integer_str_array() {
+        let json = r#"{"values":["123","abc","456"]}"#;
+
+        assert!(serde_json::from_str::<IntegerOrIntegerStrArrayData>(&json).is_err());
+    }
+
+    #[test]
+    fn deserialize_empty_integer_or_integer_str_array() {
+        let json = r#"{"values":[]}"#;
+        let expected = IntegerOrIntegerStrArrayData { values: vec![] };
+
+        assert_eq!(
+            serde_json::from_str::<IntegerOrIntegerStrArrayData>(&json).unwrap(),
+            expected
+        );
     }
 }
