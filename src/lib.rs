@@ -19,6 +19,7 @@ pub mod range;
 pub mod ratio_i64;
 pub mod ratio_u64;
 pub mod represented_as_str;
+pub mod space_or;
 pub mod timestamp_millis_str;
 pub mod timestamp_str;
 pub mod whitespace_string_or;
