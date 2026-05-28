@@ -1,9 +1,8 @@
 use serde::{
-    de::{Deserialize, Deserializer, Visitor},
+    de::{Deserialize, Deserializer},
     ser::{Serialize, Serializer},
 };
-use std::fmt;
-use std::marker::PhantomData;
+use std::cell::OnceCell;
 
 /// Deserializes an `Option<T>` treating an empty string (`""`) as `None` and otherwise attempting
 /// to deserialize as `T`.
@@ -26,112 +25,24 @@ use std::marker::PhantomData;
 pub fn deserialize<'de, T: Deserialize<'de>, D: Deserializer<'de>>(
     deserializer: D,
 ) -> Result<Option<T>, D::Error> {
-    struct EmptyStringOrVisitor<T>(PhantomData<T>);
+    let is_hit = OnceCell::new();
 
-    impl<'de, T: Deserialize<'de>> Visitor<'de> for EmptyStringOrVisitor<T> {
-        type Value = Option<T>;
+    let wrapper = super::StringCheckDeserializer {
+        inner: deserializer,
+        predicate: |input| input.is_empty(),
+        is_hit: &is_hit,
+    };
 
-        fn expecting(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-            f.write_str("an empty string or a deserializable value")
-        }
+    let target = T::deserialize(wrapper);
 
-        fn visit_unit<E: serde::de::Error>(self) -> Result<Self::Value, E> {
-            T::deserialize(serde::de::value::UnitDeserializer::new()).map(Some)
-        }
-
-        fn visit_some<D: Deserializer<'de>>(
-            self,
-            deserializer: D,
-        ) -> Result<Self::Value, D::Error> {
-            T::deserialize(deserializer).map(Some)
-        }
-
-        fn visit_bool<E: serde::de::Error>(self, v: bool) -> Result<Self::Value, E> {
-            T::deserialize(serde::de::value::BoolDeserializer::new(v)).map(Some)
-        }
-
-        fn visit_i8<E: serde::de::Error>(self, v: i8) -> Result<Self::Value, E> {
-            T::deserialize(serde::de::value::I8Deserializer::new(v)).map(Some)
-        }
-
-        fn visit_i16<E: serde::de::Error>(self, v: i16) -> Result<Self::Value, E> {
-            T::deserialize(serde::de::value::I16Deserializer::new(v)).map(Some)
-        }
-
-        fn visit_i32<E: serde::de::Error>(self, v: i32) -> Result<Self::Value, E> {
-            T::deserialize(serde::de::value::I32Deserializer::new(v)).map(Some)
-        }
-
-        fn visit_i64<E: serde::de::Error>(self, v: i64) -> Result<Self::Value, E> {
-            T::deserialize(serde::de::value::I64Deserializer::new(v)).map(Some)
-        }
-
-        fn visit_i128<E: serde::de::Error>(self, v: i128) -> Result<Self::Value, E> {
-            T::deserialize(serde::de::value::I128Deserializer::new(v)).map(Some)
-        }
-
-        fn visit_u8<E: serde::de::Error>(self, v: u8) -> Result<Self::Value, E> {
-            T::deserialize(serde::de::value::U8Deserializer::new(v)).map(Some)
-        }
-
-        fn visit_u16<E: serde::de::Error>(self, v: u16) -> Result<Self::Value, E> {
-            T::deserialize(serde::de::value::U16Deserializer::new(v)).map(Some)
-        }
-
-        fn visit_u32<E: serde::de::Error>(self, v: u32) -> Result<Self::Value, E> {
-            T::deserialize(serde::de::value::U32Deserializer::new(v)).map(Some)
-        }
-
-        fn visit_u64<E: serde::de::Error>(self, v: u64) -> Result<Self::Value, E> {
-            T::deserialize(serde::de::value::U64Deserializer::new(v)).map(Some)
-        }
-
-        fn visit_u128<E: serde::de::Error>(self, v: u128) -> Result<Self::Value, E> {
-            T::deserialize(serde::de::value::U128Deserializer::new(v)).map(Some)
-        }
-
-        fn visit_f32<E: serde::de::Error>(self, v: f32) -> Result<Self::Value, E> {
-            T::deserialize(serde::de::value::F32Deserializer::new(v)).map(Some)
-        }
-
-        fn visit_f64<E: serde::de::Error>(self, v: f64) -> Result<Self::Value, E> {
-            T::deserialize(serde::de::value::F64Deserializer::new(v)).map(Some)
-        }
-
-        fn visit_char<E: serde::de::Error>(self, v: char) -> Result<Self::Value, E> {
-            T::deserialize(serde::de::value::CharDeserializer::new(v)).map(Some)
-        }
-
-        fn visit_str<E: serde::de::Error>(self, v: &str) -> Result<Self::Value, E> {
-            if v.is_empty() {
-                Ok(None)
-            } else {
-                T::deserialize(serde::de::value::StrDeserializer::new(v)).map(Some)
-            }
-        }
-
-        fn visit_string<E: serde::de::Error>(self, v: String) -> Result<Self::Value, E> {
-            if v.is_empty() {
-                Ok(None)
-            } else {
-                T::deserialize(serde::de::value::StringDeserializer::new(v)).map(Some)
-            }
-        }
-
-        fn visit_seq<A: serde::de::SeqAccess<'de>>(self, seq: A) -> Result<Self::Value, A::Error> {
-            T::deserialize(serde::de::value::SeqAccessDeserializer::new(seq)).map(Some)
-        }
-
-        fn visit_map<A: serde::de::MapAccess<'de>>(self, map: A) -> Result<Self::Value, A::Error> {
-            T::deserialize(serde::de::value::MapAccessDeserializer::new(map)).map(Some)
-        }
+    match is_hit.get() {
+        Some(true) => Ok(None),
+        _ => target.map(Some),
     }
-
-    deserializer.deserialize_any(EmptyStringOrVisitor::<T>(PhantomData))
 }
 
-/// Serializes an `Option<T>`, writing an empty string `""` for `None` and
-/// delegating to `T`'s serializer for `Some(value)`.
+/// Serializes an `Option<T>`, writing an empty string (`""`) for `None` and delegating to `T`'s
+/// serializer for `Some(value)`.
 pub fn serialize<T: Serialize, S: Serializer>(
     value: &Option<T>,
     serializer: S,
@@ -156,6 +67,12 @@ mod tests {
     struct OptionalStringData {
         #[serde(with = "super")]
         value: Option<Option<String>>,
+    }
+
+    #[derive(Debug, PartialEq, Deserialize, Serialize)]
+    struct OptionalUsizeData {
+        #[serde(with = "super")]
+        value: Option<Option<usize>>,
     }
 
     #[derive(Debug, PartialEq, Deserialize, Serialize)]
@@ -199,6 +116,37 @@ mod tests {
         let json = r#"{"value":null}"#;
         let result: OptionalStringData = serde_json::from_str(json).unwrap();
         assert_eq!(result, OptionalStringData { value: Some(None) });
+    }
+
+    #[test]
+    fn deserialize_empty_string_as_outer_none() {
+        let json = r#"{"value":""}"#;
+        let result: OptionalStringData = serde_json::from_str(json).unwrap();
+        assert_eq!(result, OptionalStringData { value: None });
+    }
+
+    #[test]
+    fn deserialize_optional_string_as_double_some() {
+        let json = r#"{"value":"abc"}"#;
+        let result: OptionalStringData = serde_json::from_str(json).unwrap();
+        assert_eq!(
+            result,
+            OptionalStringData {
+                value: Some(Some("abc".to_string()))
+            }
+        );
+    }
+
+    #[test]
+    fn deserialize_optional_usize_as_double_some() {
+        let json = r#"{"value":123}"#;
+        let result: OptionalUsizeData = serde_json::from_str(json).unwrap();
+        assert_eq!(
+            result,
+            OptionalUsizeData {
+                value: Some(Some(123))
+            }
+        );
     }
 
     #[test]

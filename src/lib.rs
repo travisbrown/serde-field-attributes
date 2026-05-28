@@ -1,7 +1,6 @@
 #![warn(clippy::all, clippy::pedantic, clippy::nursery, rust_2018_idioms)]
 #![allow(clippy::missing_errors_doc)]
 #![forbid(unsafe_code)]
-pub mod empty_string_or;
 pub mod integer_or_integer_str;
 pub mod integer_or_integer_str_array;
 pub mod integer_str;
@@ -15,14 +14,15 @@ pub mod optional_ratio_u64;
 pub mod optional_timestamp_millis_str;
 pub mod optional_timestamp_str;
 pub mod optional_usize;
+mod optionality_marker;
 pub mod range;
 pub mod ratio_i64;
 pub mod ratio_u64;
 pub mod represented_as_str;
-pub mod space_or;
 pub mod timestamp_millis_str;
 pub mod timestamp_str;
-pub mod whitespace_string_or;
+
+pub use optionality_marker::{empty_string_or, space_string_or};
 
 #[cfg(test)]
 mod tests {
