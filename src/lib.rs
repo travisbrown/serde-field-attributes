@@ -21,6 +21,7 @@ pub mod ratio_u64;
 pub mod represented_as_str;
 pub mod timestamp_millis_str;
 pub mod timestamp_str;
+pub mod whitespace_string_or;
 
 #[cfg(test)]
 mod tests {
