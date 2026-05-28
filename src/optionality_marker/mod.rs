@@ -3,6 +3,7 @@ use std::cell::OnceCell;
 
 pub mod empty_string_or;
 pub mod space_string_or;
+pub mod spaces_string_or;
 
 struct StringCheckDeserializer<'a, D, P: FnOnce(&str) -> bool> {
     inner: D,

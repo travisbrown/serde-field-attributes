@@ -22,7 +22,7 @@ pub mod represented_as_str;
 pub mod timestamp_millis_str;
 pub mod timestamp_str;
 
-pub use optionality_marker::{empty_string_or, space_string_or};
+pub use optionality_marker::{empty_string_or, space_string_or, spaces_string_or};
 
 #[cfg(test)]
 mod tests {
