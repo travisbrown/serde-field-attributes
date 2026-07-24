@@ -55,15 +55,15 @@ mod tests {
         let test =
             serde_json::from_str::<Test>(r#"{ "foo": 0.1372897, "bar": 132791823 }"#).unwrap();
 
-        assert_eq!(test.foo, Ratio::new(1372897, 10000000));
-        assert_eq!(test.bar, Ratio::new(132791823, 1));
+        assert_eq!(test.foo, Ratio::new(1_372_897, 10_000_000));
+        assert_eq!(test.bar, Ratio::new(132_791_823, 1));
     }
 
     #[test]
     fn round_trip_json() {
         let value = Test {
-            foo: Ratio::new(1372897, 10000000),
-            bar: Ratio::new(132791823, 1),
+            foo: Ratio::new(1_372_897, 10_000_000),
+            bar: Ratio::new(132_791_823, 1),
         };
 
         let serialized = serde_json::json!(value).to_string();

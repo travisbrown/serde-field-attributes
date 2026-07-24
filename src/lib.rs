@@ -102,7 +102,7 @@ mod tests {
         let expected = IntegerStrOptData { value: None };
 
         assert_eq!(
-            serde_json::from_str::<IntegerStrOptData>(&json).unwrap(),
+            serde_json::from_str::<IntegerStrOptData>(json).unwrap(),
             expected
         );
     }
@@ -113,7 +113,7 @@ mod tests {
         let expected = IntegerStrOptData { value: None };
 
         assert_eq!(
-            serde_json::from_str::<IntegerStrOptData>(&json).unwrap(),
+            serde_json::from_str::<IntegerStrOptData>(json).unwrap(),
             expected
         );
     }
@@ -133,7 +133,7 @@ mod tests {
         };
 
         assert_eq!(
-            serde_json::from_str::<IntegerStrArrayData>(&json).unwrap(),
+            serde_json::from_str::<IntegerStrArrayData>(json).unwrap(),
             expected
         );
     }
@@ -153,8 +153,8 @@ mod tests {
         let invalid_type_json = r#"{"values":["123", 987, "456"]}"#;
         let invalid_value_json = r#"{"values":["123", "abc", "456"]}"#;
 
-        let invalid_type_result = serde_json::from_str::<IntegerStrArrayData>(&invalid_type_json);
-        let invalid_value_result = serde_json::from_str::<IntegerStrArrayData>(&invalid_value_json);
+        let invalid_type_result = serde_json::from_str::<IntegerStrArrayData>(invalid_type_json);
+        let invalid_value_result = serde_json::from_str::<IntegerStrArrayData>(invalid_value_json);
 
         assert!(invalid_type_result.is_err());
         assert!(invalid_value_result.is_err());
@@ -168,7 +168,7 @@ mod tests {
         };
 
         assert_eq!(
-            serde_json::from_str::<IntegerStrArrayOptData>(&json).unwrap(),
+            serde_json::from_str::<IntegerStrArrayOptData>(json).unwrap(),
             expected
         );
     }
@@ -200,7 +200,7 @@ mod tests {
         };
 
         assert_eq!(
-            serde_json::from_str::<UsizeOptData>(&json).unwrap(),
+            serde_json::from_str::<UsizeOptData>(json).unwrap(),
             expected
         );
     }
@@ -236,13 +236,13 @@ mod tests {
     fn deserialize_timestamp_str() {
         let json = r#"{"timestamp":"1609459200"}"#;
         let expected = TimestampStrData {
-            timestamp: chrono::TimeZone::timestamp_opt(&chrono::Utc, 1609459200, 0)
+            timestamp: chrono::TimeZone::timestamp_opt(&chrono::Utc, 1_609_459_200, 0)
                 .single()
                 .unwrap(),
         };
 
         assert_eq!(
-            serde_json::from_str::<TimestampStrData>(&json).unwrap(),
+            serde_json::from_str::<TimestampStrData>(json).unwrap(),
             expected
         );
     }
@@ -250,7 +250,7 @@ mod tests {
     #[test]
     fn serialize_timestamp_str() {
         let value = TimestampStrData {
-            timestamp: chrono::TimeZone::timestamp_opt(&chrono::Utc, 1609459200, 0)
+            timestamp: chrono::TimeZone::timestamp_opt(&chrono::Utc, 1_609_459_200, 0)
                 .single()
                 .unwrap(),
         };
@@ -264,14 +264,14 @@ mod tests {
         let json = r#"{"timestamp":"1609459200"}"#;
         let expected = OptionalTimestampStrData {
             timestamp: Some(
-                chrono::TimeZone::timestamp_opt(&chrono::Utc, 1609459200, 0)
+                chrono::TimeZone::timestamp_opt(&chrono::Utc, 1_609_459_200, 0)
                     .single()
                     .unwrap(),
             ),
         };
 
         assert_eq!(
-            serde_json::from_str::<OptionalTimestampStrData>(&json).unwrap(),
+            serde_json::from_str::<OptionalTimestampStrData>(json).unwrap(),
             expected
         );
     }
@@ -280,7 +280,7 @@ mod tests {
     fn serialize_some_timestamp_str_opt() {
         let value = OptionalTimestampStrData {
             timestamp: Some(
-                chrono::TimeZone::timestamp_opt(&chrono::Utc, 1609459200, 0)
+                chrono::TimeZone::timestamp_opt(&chrono::Utc, 1_609_459_200, 0)
                     .single()
                     .unwrap(),
             ),
@@ -296,7 +296,7 @@ mod tests {
         let expected = OptionalTimestampStrData { timestamp: None };
 
         assert_eq!(
-            serde_json::from_str::<OptionalTimestampStrData>(&json).unwrap(),
+            serde_json::from_str::<OptionalTimestampStrData>(json).unwrap(),
             expected
         );
     }
@@ -307,7 +307,7 @@ mod tests {
         let expected = OptionalTimestampStrData { timestamp: None };
 
         assert_eq!(
-            serde_json::from_str::<OptionalTimestampStrData>(&json).unwrap(),
+            serde_json::from_str::<OptionalTimestampStrData>(json).unwrap(),
             expected
         );
     }
@@ -340,11 +340,11 @@ mod tests {
     fn deserialize_timestamp_millis_str() {
         let json = r#"{"timestamp":"1609459200000"}"#;
         let expected = TimestampMillisStrData {
-            timestamp: chrono::DateTime::from_timestamp_millis(1609459200000).unwrap(),
+            timestamp: chrono::DateTime::from_timestamp_millis(1_609_459_200_000).unwrap(),
         };
 
         assert_eq!(
-            serde_json::from_str::<TimestampMillisStrData>(&json).unwrap(),
+            serde_json::from_str::<TimestampMillisStrData>(json).unwrap(),
             expected
         );
     }
@@ -352,7 +352,7 @@ mod tests {
     #[test]
     fn serialize_timestamp_millis_str() {
         let value = TimestampMillisStrData {
-            timestamp: chrono::DateTime::from_timestamp_millis(1609459200000).unwrap(),
+            timestamp: chrono::DateTime::from_timestamp_millis(1_609_459_200_000).unwrap(),
         };
         let expected = r#"{"timestamp":"1609459200000"}"#;
 
@@ -363,11 +363,11 @@ mod tests {
     fn deserialize_some_timestamp_millis_str_opt() {
         let json = r#"{"timestamp":"1609459200000"}"#;
         let expected = OptionalTimestampMillisStrData {
-            timestamp: Some(chrono::DateTime::from_timestamp_millis(1609459200000).unwrap()),
+            timestamp: Some(chrono::DateTime::from_timestamp_millis(1_609_459_200_000).unwrap()),
         };
 
         assert_eq!(
-            serde_json::from_str::<OptionalTimestampMillisStrData>(&json).unwrap(),
+            serde_json::from_str::<OptionalTimestampMillisStrData>(json).unwrap(),
             expected
         );
     }
@@ -375,7 +375,7 @@ mod tests {
     #[test]
     fn serialize_some_timestamp_millis_str_opt() {
         let value = OptionalTimestampMillisStrData {
-            timestamp: Some(chrono::DateTime::from_timestamp_millis(1609459200000).unwrap()),
+            timestamp: Some(chrono::DateTime::from_timestamp_millis(1_609_459_200_000).unwrap()),
         };
         let expected = r#"{"timestamp":"1609459200000"}"#;
 
@@ -388,7 +388,7 @@ mod tests {
         let expected = OptionalTimestampMillisStrData { timestamp: None };
 
         assert_eq!(
-            serde_json::from_str::<OptionalTimestampMillisStrData>(&json).unwrap(),
+            serde_json::from_str::<OptionalTimestampMillisStrData>(json).unwrap(),
             expected
         );
     }
@@ -399,7 +399,7 @@ mod tests {
         let expected = OptionalTimestampMillisStrData { timestamp: None };
 
         assert_eq!(
-            serde_json::from_str::<OptionalTimestampMillisStrData>(&json).unwrap(),
+            serde_json::from_str::<OptionalTimestampMillisStrData>(json).unwrap(),
             expected
         );
     }
@@ -424,7 +424,7 @@ mod tests {
         let expected = IntegerOrIntegerStrData { value: 123 };
 
         assert_eq!(
-            serde_json::from_str::<IntegerOrIntegerStrData>(&json).unwrap(),
+            serde_json::from_str::<IntegerOrIntegerStrData>(json).unwrap(),
             expected
         );
     }
@@ -435,7 +435,7 @@ mod tests {
         let expected = IntegerOrIntegerStrData { value: 123 };
 
         assert_eq!(
-            serde_json::from_str::<IntegerOrIntegerStrData>(&json).unwrap(),
+            serde_json::from_str::<IntegerOrIntegerStrData>(json).unwrap(),
             expected
         );
     }
@@ -452,7 +452,7 @@ mod tests {
     fn deserialize_invalid_integer_or_integer_str() {
         let json = r#"{"value":"abc"}"#;
 
-        assert!(serde_json::from_str::<IntegerOrIntegerStrData>(&json).is_err());
+        assert!(serde_json::from_str::<IntegerOrIntegerStrData>(json).is_err());
     }
 
     #[derive(Debug, Eq, PartialEq, serde::Deserialize, serde::Serialize)]
@@ -471,7 +471,7 @@ mod tests {
         let expected = IntegerOrIntegerStrOptData { value: Some(123) };
 
         assert_eq!(
-            serde_json::from_str::<IntegerOrIntegerStrOptData>(&json).unwrap(),
+            serde_json::from_str::<IntegerOrIntegerStrOptData>(json).unwrap(),
             expected
         );
     }
@@ -482,7 +482,7 @@ mod tests {
         let expected = IntegerOrIntegerStrOptData { value: Some(123) };
 
         assert_eq!(
-            serde_json::from_str::<IntegerOrIntegerStrOptData>(&json).unwrap(),
+            serde_json::from_str::<IntegerOrIntegerStrOptData>(json).unwrap(),
             expected
         );
     }
@@ -501,7 +501,7 @@ mod tests {
         let expected = IntegerOrIntegerStrOptData { value: None };
 
         assert_eq!(
-            serde_json::from_str::<IntegerOrIntegerStrOptData>(&json).unwrap(),
+            serde_json::from_str::<IntegerOrIntegerStrOptData>(json).unwrap(),
             expected
         );
     }
@@ -512,7 +512,7 @@ mod tests {
         let expected = IntegerOrIntegerStrOptData { value: None };
 
         assert_eq!(
-            serde_json::from_str::<IntegerOrIntegerStrOptData>(&json).unwrap(),
+            serde_json::from_str::<IntegerOrIntegerStrOptData>(json).unwrap(),
             expected
         );
     }
@@ -539,7 +539,7 @@ mod tests {
         };
 
         assert_eq!(
-            serde_json::from_str::<IntegerOrIntegerStrArrayData>(&json).unwrap(),
+            serde_json::from_str::<IntegerOrIntegerStrArrayData>(json).unwrap(),
             expected
         );
     }
@@ -552,7 +552,7 @@ mod tests {
         };
 
         assert_eq!(
-            serde_json::from_str::<IntegerOrIntegerStrArrayData>(&json).unwrap(),
+            serde_json::from_str::<IntegerOrIntegerStrArrayData>(json).unwrap(),
             expected
         );
     }
@@ -565,7 +565,7 @@ mod tests {
         };
 
         assert_eq!(
-            serde_json::from_str::<IntegerOrIntegerStrArrayData>(&json).unwrap(),
+            serde_json::from_str::<IntegerOrIntegerStrArrayData>(json).unwrap(),
             expected
         );
     }
@@ -584,7 +584,7 @@ mod tests {
     fn deserialize_invalid_integer_or_integer_str_array() {
         let json = r#"{"values":["123","abc","456"]}"#;
 
-        assert!(serde_json::from_str::<IntegerOrIntegerStrArrayData>(&json).is_err());
+        assert!(serde_json::from_str::<IntegerOrIntegerStrArrayData>(json).is_err());
     }
 
     #[test]
@@ -593,7 +593,7 @@ mod tests {
         let expected = IntegerOrIntegerStrArrayData { values: vec![] };
 
         assert_eq!(
-            serde_json::from_str::<IntegerOrIntegerStrArrayData>(&json).unwrap(),
+            serde_json::from_str::<IntegerOrIntegerStrArrayData>(json).unwrap(),
             expected
         );
     }

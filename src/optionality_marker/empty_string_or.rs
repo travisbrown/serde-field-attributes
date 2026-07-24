@@ -54,6 +54,7 @@ pub fn serialize<T: Serialize, S: Serializer>(
 }
 
 #[cfg(test)]
+#[allow(clippy::option_option)]
 mod tests {
     use serde::{Deserialize, Serialize};
 
